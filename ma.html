@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPTV Pro Player - عماد الدين لمراني</title>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #e50914;
+            --bg-dark: #0f0f0f;
+            --bg-panel: #161616;
+            --text-color: #e0e0e0;
+            --text-secondary: #888;
+            --border-color: #2a2a2a;
+            --header-height: 60px;
+        }
+
+        body.light-mode {
+            --bg-dark: #f0f2f5;
+            --bg-panel: #ffffff;
+            --text-color: #1a1a1a;
+            --border-color: #ddd;
+            --text-secondary: #555;
+        }
+
+        /* منع التداخل وتثبيت الطول */
+        html, body {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-dark);
+            color: var(--text-color);
+            font-family: 'Cairo', sans-serif;
+        }
+
+        /* الهيدر */
+        header {
+            height: var(--header-height);
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+        .logo svg { fill: var(--primary-color); width: 28px; height: 28px; }
+
+        /* زر التبديل الاحترافي */
+        .theme-toggle {
+            cursor: pointer;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 20px;
+            padding: 5px 15px;
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.8rem; font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        /* الحاوية العلوية (فيديو + ويدجت) */
+        .top-section {
+            display: flex; flex-direction: column; flex-shrink: 0;
+            background: #000;
+        }
+        .video-wrapper { width: 100%; height: 30vh; background: #000; }
+        .football-widget-area {
+            background: var(--bg-panel);
+            border-top: 2px solid var(--primary-color);
+            height: 80px; overflow-y: auto; padding: 5px;
+        }
+
+        /* منطقة القوائم */
+        .main-layout {
+            display: flex;
+            flex: 1; /* يأخذ كل المساحة المتبقية */
+            overflow: hidden;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .list-section { display: flex; flex-direction: column; height: 100%; }
+        .countries-list { width: 35%; background: var(--bg-panel); border-left: 1px solid var(--border-color); }
+        .channels-list { width: 65%; background: var(--bg-dark); }
+
+        .search-box { padding: 10px; flex-shrink: 0; }
+        .search-box input {
+            width: 100%; padding: 10px; border-radius: 6px;
+            border: 1px solid var(--border-color); background: var(--bg-dark); 
+            color: var(--text-color); box-sizing: border-box; outline: none;
+        }
+
+        .scrollable-list { flex: 1; overflow-y: auto; }
+        .item { padding: 12px; border-bottom: 1px solid var(--border-color); cursor: pointer; display: flex; align-items: center; font-size: 0.9rem; }
+        .item:hover { background: var(--primary-color); color: white; }
+        .item img { width: 20px; height: 15px; margin-left: 10px; border-radius: 2px; }
+
+        /* منطقة التحكم (استيراد الملف) */
+        .control-bar {
+            padding: 10px 20px;
+            background: var(--bg-panel);
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0; border-top: 1px solid var(--border-color);
+        }
+
+        .btn {
+            padding: 8px 20px; border-radius: 5px; border: none; 
+            cursor: pointer; font-family: 'Cairo'; font-weight: 600;
+            display: flex; align-items: center; gap: 8px; font-size: 0.85rem;
+        }
+        .btn-import { background: var(--primary-color); color: white; }
+        .btn-reset { background: #555; color: white; display: none; }
+
+        /* الفوتر الاحترافي */
+        footer {
+            background: var(--bg-panel);
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 8px 0;
+            font-size: 0.75rem;
+            border-top: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        footer b { color: var(--primary-color); }
+
+        @media (max-width: 768px) {
+            .video-wrapper { height: 25vh; }
+            .countries-list { width: 45%; }
+            .channels-list { width: 55%; }
+        }
+    </style>
+</head>
+<body class="dark-mode">
+
+    <header>
+        <div class="logo">
+            <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg>
+            <span>IPTV Pro Player</span>
+        </div>
+        <button class="theme-toggle" onclick="document.body.classList.toggle('light-mode')">
+            <span>تبديل الوضع</span> 🌓
+        </button>
+
+    </header>
+
+        <div class="search-box"><input type="text" placeholder="بحث عن قناة..." onkeyup="filterList('channels-container', this.value)"></div>
+        
+    <div class="top-section">
+        <div class="video-wrapper">
+            <video id="player" playsinline controls crossorigin></video>
+        </div>
+        <div class="football-widget-area">
+            <api-sports-widget data-type="schedule" data-key="219afb927d14c7f9ba7132adf83e0a4f" data-sport="football" data-league="13" data-season="2024" data-theme="dark" data-refresh="60" data-show-errors="false" class="api_sports_widget"></api-sports-widget>
+        </div>
+    </div>
+
+    <main class="main-layout">
+        <section class="list-section countries-list">
+
+            <div id="countries-container" class="scrollable-list"></div>
+        </section>
+        <section class="list-section channels-list">
+
+            <div id="channels-container" class="scrollable-list"></div>
+        </section>
+    </main>
+
+    <div class="control-bar">
+        <div style="display: flex; gap: 10px;">
+            <input type="file" id="m3u-input" accept=".m3u,.m3u8" hidden>
+            <button class="btn btn-import" onclick="document.getElementById('m3u-input').click()">📁 استيراد ملف M3U</button>
+            <button id="reset-btn" class="btn btn-reset" onclick="resetToGlobalList()">🔄 القائمة العامة</button>
+        </div>
+        <div id="status-msg" style="font-size: 0.8rem; opacity: 0.8;"></div>
+    </div>
+
+    <footer>
+        <p>Copyright © 2024 - تم التطوير بواسطة <b>عماد الدين لمراني</b></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+    <script type="module" src="https://widgets.api-sports.io/2.0.3/widgets.js"></script>
+
+    <script>
+        const video = document.getElementById('player');
+        let player, hls;
+
+        player = new Plyr(video);
+
+        function initPlayer(url) {
+            if (Hls.isSupported()) {
+                if(hls) hls.destroy();
+                hls = new Hls(); hls.loadSource(url); hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = url;
+                video.addEventListener('loadedmetadata', () => video.play());
+            }
+        }
+
+        async function fetchCountries() {
+            try {
+                const res = await fetch('https://iptv-org.github.io/api/countries.json');
+                const data = await res.json();
+                const container = document.getElementById('countries-container');
+                container.innerHTML = '';
+                data.filter(c => c.name).sort((a,b) => a.name.localeCompare(b.name)).forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = 'item';
+                    div.innerHTML = `<img src="https://flagcdn.com/w40/${c.code.toLowerCase()}.png"><span>${c.name}</span>`;
+                    div.onclick = () => loadChannels(c.code);
+                    div.setAttribute('data-name', c.name.toLowerCase());
+                    container.appendChild(div);
+                });
+            } catch(e) { console.error("Error loading countries"); }
+        }
+
+        async function loadChannels(code) {
+            document.getElementById('status-msg').innerText = 'جاري التحميل...';
+            const res = await fetch(`https://iptv-org.github.io/iptv/countries/${code.toLowerCase()}.m3u`);
+            const text = await res.text();
+            parseAndDisplayM3U(text);
+        }
+
+        function resetToGlobalList() {
+            document.getElementById('reset-btn').style.display = 'none';
+            document.getElementById('status-msg').innerText = '';
+            fetchCountries();
+        }
+
+        function parseAndDisplayM3U(text) {
+            const container = document.getElementById('channels-container');
+            const statusMsg = document.getElementById('status-msg');
+            container.innerHTML = '';
+            const lines = text.split('\n');
+            let channels = [];
+            let currentName = '';
+
+            for (let i = 0; i < lines.length; i++) {
+                let l = lines[i].trim();
+                if (l.startsWith('#EXTINF:')) {
+                    currentName = l.split(',').pop().trim();
+                } else if (l.startsWith('http')) {
+                    channels.push({ name: currentName || 'قناة غير معروفة', url: l });
+                    currentName = '';
+                }
+            }
+
+            let index = 0;
+            const chunkSize = 50;
+            function renderChunk() {
+                const fragment = document.createDocumentFragment();
+                const end = Math.min(index + chunkSize, channels.length);
+                for (; index < end; index++) {
+                    const ch = channels[index];
+                    const d = document.createElement('div');
+                    d.className = 'item';
+                    d.innerHTML = `<span>${ch.name}</span>`;
+                    d.onclick = () => initPlayer(ch.url);
+                    d.setAttribute('data-name', ch.name.toLowerCase());
+                    fragment.appendChild(d);
+                }
+                container.appendChild(fragment);
+                statusMsg.innerText = `عدد القنوات: ${channels.length}`;
+                if (index < channels.length) requestAnimationFrame(renderChunk);
+            }
+            renderChunk();
+        }
+
+        document.getElementById('m3u-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('reset-btn').style.display = 'block';
+                parseAndDisplayM3U(event.target.result);
+            };
+            reader.readAsText(file);
+        });
+
+        function filterList(id, v) {
+            const items = document.getElementById(id).getElementsByClassName('item');
+            Array.from(items).forEach(i => {
+                const name = i.getAttribute('data-name') || '';
+                i.style.display = name.includes(v.toLowerCase()) ? 'flex' : 'none';
+            });
+        }
+
+        fetchCountries();
+    </script>
+</body>
+</html>
